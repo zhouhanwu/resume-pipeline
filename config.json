@@ -1,0 +1,63 @@
+{
+  "_comment": "Everything about you that the scripts need. /setup writes this from an interview — you shouldn't have to hand-edit it, but nothing stops you. Notion table ids live separately in pipeline/notion_config.json, written by notion_bootstrap.py.",
+
+  "_example": true,
+  "_example_note": "While this is true, build.sh refuses to build anything but the worked example. /setup clears it once you have your own identity in here. If you are filling this in by hand, delete the _example line.",
+
+  "identity": {
+    "name": "Alex Mercer",
+    "file_name": "AlexMercer",
+    "email": "alex.mercer@example.com",
+    "links": [
+      {"label": "linkedin.com/in/alexmercer", "url": "https://linkedin.com/in/alexmercer"},
+      {"label": "github.com/alexmercer",      "url": "https://github.com/alexmercer"}
+    ]
+  },
+
+  "regions": {
+    "_comment": "Region drives the phone number on the résumé and nothing else. new-company.sh takes one of these keys. Use the ROLE's location, not where you currently are.",
+    "default": "uk",
+    "phones": {
+      "uk": "+44 7700 900142",
+      "eu": "+353 20 915 0142"
+    }
+  },
+
+  "locale": {
+    "_comment": "en-GB makes American spelling a FAIL gate; en-US inverts it; null disables the spelling gate entirely. Whichever you pick, be consistent — a page that mixes both reads as careless.",
+    "spelling": "en-GB"
+  },
+
+  "rank": {
+    "_comment": "How /jobscan scores a posting out of 100. p_admission and fit are your judgement, supplied per posting; the rest are mechanical. Change these if your priorities differ — geography especially, which is personal.",
+    "weights": {
+      "p_admission": 35.0,
+      "fit": 25.0,
+      "recency": 20.0,
+      "visa": 10.0,
+      "geography": 10.0
+    },
+    "geography_points": {
+      "london": 10.0,
+      "remote": 7.0,
+      "europe": 6.0,
+      "us": 4.0
+    },
+    "geography_default": 3.0,
+    "off_cycle_uplift": 1.35,
+    "ineligible_multiplier": 0.1
+  },
+
+  "sources": {
+    "_comment": "Which discovery sources /jobscan sweeps. The Notion watch list is the spine and cannot be turned off. The other two are UK-internship-specific and login-gated — leave them false unless they cover your market.",
+    "notion_watchlist": true,
+    "trackr": {"enabled": false, "url": "https://app.the-trackr.com/uk-tech/summer-internships"},
+    "jorb": {"enabled": false, "url": "https://jorb.ai/search-jobs"},
+    "custom": []
+  },
+
+  "queue": {
+    "_comment": "How many To-apply rows one /resume-build run drains. Each role costs a real slice of a session; three is a deliberate cap, not a limitation.",
+    "batch_cap": 3
+  }
+}

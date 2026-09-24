@@ -1,0 +1,55 @@
+% ============================================================
+%  COVER LETTER TEMPLATE
+% ------------------------------------------------------------
+%  To use: copy this file into an application folder as
+%  cover-letter.tex, then fill in the bracketed fields.
+%    cp shared/cover-letter-template.tex applications/<company>/cover-letter.tex
+%  build.sh auto-detects it and produces
+%    dist/<YourName>-CoverLetter-<Company>.pdf
+%
+%  Name, contact line and region phone come from config.json via
+%  shared/identity.tex, same as the resume — nothing to edit here.
+%
+%  A NOTE ON WHO WRITES THIS. /resume-build will not draft a cover
+%  letter for you, by design. A cover letter is the one document
+%  that is entirely voice and motive, and a generated one reads
+%  like a generated one. The skill flags that a letter is required
+%  and leaves it to you.
+% ============================================================
+\def\TargetRegion{uk}          % override per application if needed
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{parskip}
+\usepackage{hyperref}
+\pagenumbering{gobble}
+
+\input{identity.tex}
+
+\begin{document}
+
+\HeaderBlock
+
+\vspace{1em}
+\noindent [Date] \\
+\noindent [Hiring Manager / Recruiting Team] \\
+\noindent [Company], [Location]
+
+\vspace{1em}
+\noindent Dear [Hiring Manager],
+
+\vspace{0.5em}
+[Opening: the role you are applying for, and one sentence on why this firm
+specifically. If that sentence would work for any firm in the sector, it is not
+finished yet.]
+
+[Body: one or two paragraphs connecting a specific thing you have done to a
+specific thing the role needs. Name the JD line you are answering. Do not
+restate the résumé — the reader has it.]
+
+[Closing: availability and thanks. Short.]
+
+\vspace{0.5em}
+\noindent Sincerely, \\
+\noindent \CandidateName
+
+\end{document}

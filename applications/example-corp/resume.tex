@@ -1,0 +1,103 @@
+% ============================================================
+%  APPLICATION: Example Corp — Data Analyst Intern, Operations Analytics
+% ------------------------------------------------------------
+%  THE WORKED EXAMPLE. This is what a tailored application looks
+%  like when it is finished. Read it alongside notes.md and
+%  job-description.md, then delete the folder once you have one
+%  of your own.
+%
+%  What tailoring means here, and what it does NOT mean:
+%
+%  The overrides below REORDER and TRIM. Not one bullet was
+%  rewritten from scratch. Every sentence that survives is
+%  word-for-word the one in shared/blocks.tex, because a bullet
+%  that shares almost no words with its source is a regenerated
+%  bullet, and regenerated bullets are what make a page sound
+%  like nobody in particular wrote it.
+%
+%  The JD asks for SQL, data-quality root-causing, and talking to
+%  operations staff. It says outright that it cares less about
+%  modelling depth. So:
+%
+%    - Northwind leads. It is the only entry that is literally
+%      this job, and its root-cause bullet answers the JD's
+%      "find the real cause rather than the symptom" line.
+%    - \xRidgelineDebug is switched ON. This is the block that
+%      exists for exactly this JD sentence, and this is the only
+%      kind of audience it gets spent on.
+%    - Bike-share drops to two bullets. Its Optuna/CV bullet is
+%      the strongest thing on the page for a modelling reader and
+%      the least relevant thing on it for this one. Trimmed, not
+%      reworded — the wording is settled.
+%    - \xEduCompetition was cut first, then put back. Dropping
+%      it took the page to 92.9%, and the fill gate said three
+%      lines were free. That is the loop working: build, read
+%      the number, restore the next item in priority order,
+%      rebuild. Judging this by eye does not work — pages that
+%      read as "roughly full" measure in the high 80s.
+% ============================================================
+\def\TargetRegion{uk}
+\input{../../shared/preamble.tex}
+\input{../../shared/blocks.tex}
+
+% Bike-share: two bullets, not three. The dropped bullet is the
+% rolling-origin CV / Optuna one — genuinely the best line in the file, and
+% the wrong line for a reader who wrote "we care more about communication
+% than modelling depth" into their own posting. Kept verbatim in blocks.tex
+% for the audiences that do want it.
+\renewcommand{\xBikeShare}{%
+  \resumeItem{Forecast hourly bike-share demand across 68 docking stations, achieving 0.81 R\textsuperscript{2} on a held-out month against a 0.63 seasonal-naive baseline.}
+  \resumeItem{Built the feature set from weather, public-holiday and station-adjacency data, where adjacency alone accounted for a third of the gain over the baseline and weather for almost none of it at all, which surprised us.}
+}
+
+% Society: one bullet. The careers-evening line is real and fine, and it is
+% not competing with a root-cause bullet for this reader's attention.
+\renewcommand{\xSociety}{%
+  \resumeItem{Organised a six-week practical workshop series on pandas and scikit-learn, growing attendance from 15 to 60 across the run.}
+}
+
+% Layout override. Experience still precedes Projects — that never moves.
+% What changes is the order WITHIN Experience and the bullets attached:
+% Northwind is the anchor for this audience, so it leads its section and
+% keeps all four of its bullets including the dashboard one.
+\renewcommand{\ResumeBody}{%
+\HeaderBlock
+
+\section*{Education}
+\hUni
+\Bullets{\xEduMarks \xEduCoursework \xEduActivities \xEduCompetition}
+\resumeSubheadingSep
+
+\hSchool
+\resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Experience}
+
+\hNorthwind \Bullets{\xNorthwind \xNorthwindDash} \resumeSubheadingSep
+
+\hTA \Bullets{\xTA} \resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Projects}
+
+% \xRidgelineDebug switched on: the JD asks for evidence of finding the real
+% cause of a problem, and this is the bullet that shows it.
+\hRidgeline \Bullets{\xRidgeline \xRidgelineDebug} \resumeSubheadingSep
+
+\hBikeShare \Bullets{\xBikeShare} \resumeSubheadingSep
+
+\hSociety \Bullets{\xSociety} \resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Skills \& Tools}
+\Bullets{\xSkills}
+}
+
+\begin{document}\ResumeBody\end{document}

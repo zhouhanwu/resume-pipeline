@@ -1,0 +1,190 @@
+% ============================================================
+%  CONTENT BLOCKS  —  THE single source of truth (all resumes)
+% ------------------------------------------------------------
+%  THIS IS THE WORKED EXAMPLE. Every entry below belongs to a
+%  fictional candidate, Alex Mercer, and exists so the repo
+%  builds a real PDF the moment you clone it. `/setup` replaces
+%  the lot with your own. Until it does, config.json carries
+%  "_example": true and build.sh will only build --example.
+%
+%  Read it before you replace it. The comments explain what each
+%  kind of block is for, and the two honesty caveats below are
+%  the pattern the whole system is built around.
+% ------------------------------------------------------------
+%  HOW IT WORKS
+%
+%  Every entry splits into a HEADING (\h...) and its BULLETS
+%  (\x...). Each application inherits these defaults and, in its
+%  own resume.tex, \renewcommand's ONLY the blocks it tailors.
+%
+%  Edit a fact here — a job title, a date, a metric — and it
+%  flows into every application that hasn't overridden it. That
+%  is the point: one place to fix a number, not thirty.
+%
+%  Naming:  \h<Name> = heading line    \x<Name> = bullet list
+%  Layout and section order live in \ResumeBody at the bottom.
+%
+%  OPTIONAL blocks are defined here but left out of the default
+%  \ResumeBody. They exist for page-fill: when the fill gate says
+%  two lines are free, you add the one that fits this reader
+%  rather than padding a bullet you already have.
+% ============================================================
+
+% ---------- Headings ----------
+% Dates are month-precise. A résumé that says "2025 -- 2026" invites the
+% question "how long, exactly?", and the honest answer is usually shorter
+% than the reader assumed.
+\newcommand{\hUni}{\resumeSubheading{University of Manchester}{Manchester, UK}{BSc Computer Science \& Statistics}{Sep 2024 -- Jun 2027}}
+\newcommand{\hSchool}{\resumeSubheading{Northgate Sixth Form College}{Leeds, UK}{A-levels: Mathematics (A*), Further Mathematics (A*), Physics (A)}{Sep 2022 -- Jun 2024}}
+
+% HONESTY CAVEAT, and the reason this example exists.
+% Ridgeline is real work and Alex really did co-found it — but the app was
+% built with heavy AI assistance, so the bullets lead with the decisions Alex
+% actually made (the sync bug root-cause, the routing heuristic) and never
+% imply a solo build. "Co-Founder" is a truthful title. "Built a full-stack
+% iOS app" would not be. /setup asks you this question about every project
+% you report, and writes the answer into CLAUDE.md's truth rules and
+% profile/lexicon.json so the gates enforce it afterwards.
+\newcommand{\hRidgeline}{\resumeSubheading{Ridgeline - Route Planning App for Hikers}{Manchester}{Co-Founder}{Jan 2025 -- Nov 2025}}
+
+% HONESTY CAVEAT 2. This was a four-person coursework team, and Alex's scope
+% was the modelling. The role line says so. "Machine Learning Engineer" would
+% read as a solo build, which is the quiet kind of overclaim an interviewer
+% dismantles in one follow-up question.
+\newcommand{\hBikeShare}{\resumeSubheading{Bike-Share Demand Forecasting}{Manchester}{Modelling and feature engineering, team of 4}{Oct 2024 -- Feb 2025}}
+
+\newcommand{\hNorthwind}{\resumeSubheading{Northwind Logistics}{Leeds, UK}{Data Analyst Intern}{Jun 2025 -- Sep 2025}}
+\newcommand{\hTA}{\resumeSubheading{University of Manchester, Dept. of Computer Science}{Manchester}{Undergraduate Teaching Assistant - Programming I}{Sep 2025 -- Present}}
+\newcommand{\hSociety}{\resumeSubheading{Manchester Data Science Society}{Manchester}{Events Lead}{Sep 2024 -- Jun 2025}}
+
+% ---------- Education detail lines ----------
+\newcommand{\xEduMarks}{\resumeItem{Year 1 average 78\% (First-Class), ranked 6th of 211, with a top mark of 91\% in Probability \& Statistics.}}
+\newcommand{\xEduCoursework}{\resumeItem{Relevant Coursework: Machine Learning, Probability \& Statistics, Algorithms \& Data Structures, Databases, Linear Algebra}}
+\newcommand{\xEduActivities}{\resumeItem{Activities: Data Science Society (Events Lead), Hackathon Society, departmental peer mentor}}
+% In the default layout. Drop it first when a tailored cut needs the line back.
+\newcommand{\xEduCompetition}{\resumeItem{Placed 3rd of 47 teams at Manchester Hack 2025 with a live-departures routing tool built in 24 hours.}}
+
+% ---------- Ridgeline ----------
+% Note what these bullets do NOT say. No line count, no "architected", no
+% claim to the stack. Each one is a decision Alex can defend for ten minutes
+% in an interview, which is the only test that matters.
+\newcommand{\xRidgeline}{%
+  \resumeItem{Co-founded a hiking route planner that reached 400 registered users and 1,200 saved routes over ten months.}
+  \resumeItem{Designed the route-scoring heuristic — elevation gain, surface type and daylight remaining — after trail-running the first twelve suggestions myself and finding half of them unwalkable in winter trail conditions.}
+  \resumeItem{Ran a fortnightly call with eight regular users, shipped the two changes they asked for most, and lifted 30-day retention from 22\% to 41\% across the quarter that followed those two releases going out to all users.}
+}
+% OPTIONAL — the root-cause bullet. Add it only when the JD names debugging,
+% production support or systems work. It is the strongest own-reasoning claim
+% in the file, which is exactly why it is not spent on audiences who won't
+% read it.
+\newcommand{\xRidgelineDebug}{\resumeItem{Diagnosed a sync failure that silently dropped saved routes: traced it to a timezone-dependent cache key, reproduced it by shifting the device clock forward a day, and cut support reports about lost routes to zero.}}
+
+% ---------- Bike-share forecasting ----------
+% "achieving" and "optimised" are the candidate's own words and must not be
+% "improved" into something smoother. That is Rule 4a: once a wording is
+% settled, later tailoring passes paste it rather than re-deriving it.
+\newcommand{\xBikeShare}{%
+  \resumeItem{Forecast hourly bike-share demand across 68 docking stations, achieving 0.81 R\textsuperscript{2} on a held-out month against a 0.63 seasonal-naive baseline.}
+  \resumeItem{Built the feature set from weather, public-holiday and station-adjacency data, where adjacency alone accounted for a third of the gain over the baseline and weather for almost none of it at all, which surprised us.}
+  \resumeItem{Used rolling-origin cross-validation instead of naive k-fold to remove look-ahead bias, and optimised hyperparameters with Optuna across 200 trials on a four-year hourly series of station-level demand history.}
+}
+
+% ---------- Northwind Logistics ----------
+\newcommand{\xNorthwind}{%
+  \resumeItem{Rebuilt the weekly delivery-exception report as a SQL view and scheduled job, replacing a four-hour manual spreadsheet process that two people repeated every Monday morning before the depot review meeting.}
+  \resumeItem{Traced 60\% of flagged exceptions to one depot's scanner configuration, which had been recorded as driver error across roughly 4,000 deliveries over the previous eight months before anyone checked the scanner hardware.}
+  \resumeItem{Wrote the handover documentation the operations team still works from, and the job has run unattended since September.}
+}
+% Pulled into the default layout because the fill gate reported three free
+% lines — Rule 2's "add the next item in priority order", done exactly as the
+% loop describes. A tailored cut that needs the line back drops this first.
+\newcommand{\xNorthwindDash}{\resumeItem{Built the depot-level dashboard in Power BI, agreeing every metric definition with the operations lead beforehand so that the numbers on it matched the ones already printed on the depot's own wall chart.}}
+
+% ---------- Teaching ----------
+\newcommand{\xTA}{%
+  \resumeItem{Run weekly lab sessions for 30 first-year students on Python fundamentals, and mark their coursework against the department's rubric, writing individual feedback on every submission rather than a shared summary.}
+  \resumeItem{Rewrote the recursion lab's worked examples after a third of the cohort stalled on the same exercise two weeks running.}
+}
+
+% ---------- Society ----------
+\newcommand{\xSociety}{%
+  \resumeItem{Organised a six-week practical workshop series on pandas and scikit-learn, growing attendance from 15 to 60 across the run.}
+  \resumeItem{Ran a careers evening with four alumni working in data roles, attended by 80 students from three departments.}
+}
+
+% ---------- Skills ----------
+% Skills-line headers are exempt from the plain-speech rule — "ML/Data
+% Frameworks" is a category label, not a sentence. Keyword matching is honest
+% here, where the reader expects a list, and dishonest in a bullet, where it
+% reads as written-to-order.
+\newcommand{\xSkills}{%
+  \resumeItem{\textbf{Languages:} Python, SQL, Java, R, Bash}
+  \resumeItem{\textbf{ML/Data:} scikit-learn, pandas, NumPy, Optuna, PyTorch (learning), Power BI}
+  \resumeItem{\textbf{Tools:} Git, PostgreSQL, Docker (basic), LaTeX, Linux}
+}
+
+% ============================================================
+%  LAYOUT
+% ------------------------------------------------------------
+%  An application can \renewcommand{\ResumeBody}{...} to reorder
+%  sections, drop an entry, or rename a section for one reader.
+%
+%  TWO RULES THE LAYOUT MUST KEEP:
+%
+%  1. Experience always precedes Projects. Reordering entries
+%     WITHIN a section for emphasis is fine and expected.
+%
+%  2. Never a headless entry. A heading with no bullets under it
+%     occupies a line and explains nothing — a cold reader
+%     cannot tell what "Manchester Data Science Society" even is
+%     from the name. If an entry cannot earn one real bullet,
+%     cut the whole entry rather than leave the heading
+%     dangling.
+%
+%     \hSchool is the one deliberate exception below, and it is
+%     worth understanding why it is allowed: its heading line
+%     already carries its entire content (the school, and the
+%     grades). Nothing is missing. The rule targets headings
+%     that raise a question they don't answer, not headings
+%     that are complete in themselves.
+% ------------------------------------------------------------
+%  NOTE: the blank lines below are intentional — under parskip
+%  each one adds the vertical gap between entries. Keep them.
+% ============================================================
+\newcommand{\ResumeBody}{%
+\HeaderBlock
+
+\section*{Education}
+\hUni
+\Bullets{\xEduMarks \xEduCoursework \xEduActivities \xEduCompetition}
+\resumeSubheadingSep
+
+\hSchool
+\resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Experience}
+
+\hNorthwind \Bullets{\xNorthwind \xNorthwindDash} \resumeSubheadingSep
+
+\hTA \Bullets{\xTA} \resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Projects}
+
+\hRidgeline \Bullets{\xRidgeline} \resumeSubheadingSep
+
+\hBikeShare \Bullets{\xBikeShare} \resumeSubheadingSep
+
+\hSociety \Bullets{\xSociety} \resumeSubheadingSep
+\SecGap
+
+\Rule
+
+\section*{Skills \& Tools}
+\Bullets{\xSkills}
+}

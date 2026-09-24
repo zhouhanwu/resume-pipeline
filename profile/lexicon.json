@@ -1,0 +1,38 @@
+{
+  "_comment": "The word-level gates, in your hands rather than buried in preflight.py. /setup seeds this from the truth-rule interview and you add to it every time you catch a wording you don't want back. Everything here is checked against the BUILT PDF's text.",
+
+  "banned_vocab": {
+    "_comment": "Rule 4d — words that do impression management rather than work. WARN, not FAIL, because the rule exempts skills-line headers and genuine terms of art: a build can justify one in notes.md. The list below is a generic starting set; add the ones that keep creeping into your own drafts.",
+    "words": [
+      "leveraged", "utilised", "utilized", "spearheading synergies",
+      "stakeholder alignment", "robust solution", "comprehensive", "seamless",
+      "proven track record", "demonstrated ability", "played a key role",
+      "worked closely with", "cutting-edge", "passionate about",
+      "results-driven", "detail-oriented", "value-add", "best-in-class",
+      "thought leadership", "hit the ground running"
+    ]
+  },
+
+  "rejected_wordings": {
+    "_comment": "Rule 4a and the truth rules — FAIL. Two kinds of entry live here. (1) A wording you already settled on, so a re-derived variant gets caught and replaced with the version you chose. (2) A claim that overstates what you actually did. The second kind is the important one: it is the mechanism that stops a tailoring pass quietly promoting you. /setup writes your first entries from the honesty questions it asks in phase 4.",
+    "pairs": [
+      ["example-overclaim", "replace me — see profile/HOW-TO.md"]
+    ]
+  },
+
+  "spelling": {
+    "_comment": "Set by config.json's locale.spelling. en-GB makes the American column a FAIL; en-US inverts it; null disables the gate. The point is consistency, not nationality — a page that mixes both reads as careless.",
+    "en_GB_from_en_US": {
+      "optimized": "optimised", "optimize": "optimise", "optimizing": "optimising",
+      "visualized": "visualised", "visualize": "visualise",
+      "analyzed": "analysed", "analyze": "analyse", "analyzing": "analysing",
+      "behavior": "behaviour", "behavioral": "behavioural",
+      "prioritized": "prioritised", "prioritize": "prioritise",
+      "modeling": "modelling", "modeled": "modelled",
+      "organized": "organised", "recognized": "recognised",
+      "summarize": "summarise", "categorize": "categorise",
+      "minimized": "minimised", "maximized": "maximised",
+      "specialized": "specialised", "standardized": "standardised"
+    }
+  }
+}

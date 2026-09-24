@@ -1,0 +1,59 @@
+% ============================================================
+%  SHARED PREAMBLE  —  formatting and render helpers
+% ------------------------------------------------------------
+%  Loaded by every application (applications/<company>/resume.tex)
+%  and by the base preview (shared/master.tex). Change styling
+%  ONCE here and it propagates to every resume.
+%
+%  Requires \TargetRegion (any key from config.json's regions) to
+%  be \def'd BEFORE this file is \input. The application file does
+%  that on line 1.
+% ============================================================
+\documentclass[a4paper,10pt]{article}
+\usepackage[a4paper,margin=0.8cm]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{parskip}
+
+\linespread{1} % More compact line spacing
+\pagenumbering{gobble}
+
+% Section formatting
+\titleformat{\section}{\bfseries\large\uppercase}{}{0em}{}
+\titlespacing{\section}{0pt}{1pt}{3pt}
+
+% --- Core entry commands ---
+\newcommand{\resumeSubheading}[4]{
+  \noindent
+  \textbf{#1} \hfill \textit{#2} \\
+  \textit{#3} \hfill #4 \\
+  \vspace{-1.5em}
+}
+\newcommand{\resumeSubheadingSep}{\vspace{0pt}}
+\newcommand{\resumeItem}[1]{
+  \item #1
+}
+
+% --- Render helpers used by \ResumeBody (see shared/blocks.tex) ---
+% \Bullets{...}  wraps a set of \resumeItem / \item lines in the
+%                compact itemize used throughout the resume.
+\newcommand{\Bullets}[1]{\begin{itemize}[leftmargin=*, itemsep=0pt, topsep=0pt]#1\end{itemize}}
+% \Rule    horizontal divider between sections.
+\newcommand{\Rule}{\noindent\rule{\linewidth}{0.4pt}}
+% \SecGap  the small negative space placed before each \Rule.
+\newcommand{\SecGap}{\vspace{-0.8em}}
+
+% ------------------------------------------------------------
+%  IDENTITY + REGION  —  generated from config.json
+% ------------------------------------------------------------
+%  shared/identity.tex defines \phone, \regiononly and \HeaderBlock
+%  from config.json. build.sh regenerates it on every compile, so
+%  your name, email, links and per-region phone live in one place
+%  and nothing about you is hardcoded in a .tex file.
+%
+%  \TargetRegion must already be \def'd — the application file does
+%  that on its first line, and new-company.sh writes it for you.
+% ------------------------------------------------------------
+\input{identity.tex}

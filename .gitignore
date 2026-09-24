@@ -1,0 +1,25 @@
+# Secrets — never commit these
+pipeline/.notion-token
+pipeline/notion_config.json
+
+# Your own data. The repo ships a worked example; your real applications,
+# built PDFs and run history are yours and stay local.
+dist/
+.build/
+pipeline/runs/
+pipeline/seen.json
+.setup-state.json
+
+# Generated from config.json on every build
+shared/identity.tex
+
+# LaTeX droppings
+*.aux
+*.log
+*.out
+*.synctex.gz
+
+# OS
+.DS_Store
+__pycache__/
+*.pyc
