@@ -37,7 +37,11 @@ Loop 1, run once per entry on their CV.
   Appendix C exists to hold exactly these gaps.
 - **Write as you go, not at the end.** Each phase commits its output to disk
   before the next begins. A session that runs out of room mid-interview must not
-  lose the interview.
+  lose the interview. This applies inside a phase too, not just between phases:
+  in phases 1, 4 and 5, write each answer into `config.json` /
+  `application-facts.md` / the truth-rules block as it's given, rather than
+  holding everything in your head until the phase's last question — a phase cut
+  short should lose at most one unanswered question, not the whole phase.
 - **Their words, not yours.** When they describe an accomplishment, keep their
   phrasing. The entire voice doctrine (Rule 4) depends on the knowledge base
   being in their voice, and this is the moment that voice enters the system.
@@ -49,12 +53,32 @@ Loop 1, run once per entry on their CV.
 Track progress in `.setup-state.json` at the repo root:
 
 ```json
-{"completed": ["0-environment", "1-identity"], "updated": "2026-09-24"}
+{
+  "completed": ["0-environment", "1-identity"],
+  "entries": ["Acme internship", "Bike-share", "Ridgeline"],
+  "phase3_done": ["Acme internship"],
+  "phase3_sections_done": ["§1"],
+  "updated": "2026-09-24"
+}
 ```
 
-Write it after **every** phase. On invocation, read it first: if phases are
-already complete, say which, and start at the first incomplete one rather than
-beginning again. If the file doesn't exist, this is a fresh run.
+Write it after **every** phase — that covers phases 0, 1, 2, 4, 5, 6, 7, 8.
+Phase 3 is the one long enough to lose mid-phase, so it gets finer-grained
+tracking: `entries` (written once, in phase 2) is the full agenda;
+`phase3_done` and `phase3_sections_done` grow one item at a time, as each
+entry or §-section is actually written to `master-profile.md` — see Phase 3
+below. Don't wait for the whole phase to finish before writing these; that
+defeats the point.
+
+On invocation, read the state file first. If `completed` shows phases already
+done, say which, and start at the first incomplete one rather than beginning
+again. For phase 3 specifically, also read `phase3_done` and
+`phase3_sections_done` and diff them against what's actually in
+`master-profile.md` §3 — the state file is a record of what you *meant* to
+write, not proof that you did, so a mismatch means trust the file on disk and
+correct the state. Resume phase 3 from the first entry not in `phase3_done`,
+and tell the person which entries are already captured so they don't repeat
+themselves. If `.setup-state.json` doesn't exist, this is a fresh run.
 
 `/setup <phase>` re-runs one phase by name, for someone who wants to redo just
 the truth rules or just the Notion step.
@@ -123,8 +147,9 @@ If they have nothing at all, that is fine: ask them to list everything they'd
 put on a CV, in any order, and work from that.
 
 Write nothing to `master-profile.md` yet. This phase produces the agenda for
-phase 3. Record `2-ingest` with the list of entries in the state file so a
-resumed run knows what remains.
+phase 3. Record `2-ingest`, and write the confirmed list of entries into the
+state file's `entries` array (initialise `phase3_done` and
+`phase3_sections_done` as empty arrays) so a resumed run knows what remains.
 
 ## Phase 3 — The interview *(the important one)*
 
@@ -147,15 +172,23 @@ work through `profile/HOW-TO.md`'s Loop 1:
 Write each entry into `profile/master-profile.md` §3 **as you finish it**, in
 their words, at full length. Do not compress to résumé length — that is phase 6's
 job, and an entry written short leaves a later tailoring pass nothing to do but
-reword.
+reword. **The moment an entry is written, append its name to `phase3_done` in
+the state file and save it** — don't batch this until the end of the phase;
+the whole point is that a session ending mid-interview still knows what's
+already captured.
 
 Then §1 (what they're optimising for, and the honest fit-vs-positioning split
 across role types), §2 (geography), §4 (things not yet résumé-worthy), §5 (the
 narrative and the **proof-point-to-audience map**, which is the table Rule 2's
 priority order actually reads), Appendix B (skills with honest ownership tags —
 "would you defend this in a technical interview?"), Appendix C (known gaps).
+**Same rule: append the section label ("§1", "§2", "Appendix B", ...) to
+`phase3_sections_done` as soon as it's written**, not at the end.
 
-Record `3-interview`.
+Record `3-interview` only once every entry is in `phase3_done` and every
+section above is in `phase3_sections_done`. If the session ends before that,
+leave `3-interview` off `completed` — the per-entry and per-section progress
+already saved is what a resumed run reads to pick up where this one stopped.
 
 ## Phase 4 — Truth rules *(the one worth stealing)*
 
