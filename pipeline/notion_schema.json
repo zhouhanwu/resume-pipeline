@@ -1,5 +1,5 @@
 {
-  "_comment": "The two tables the pipeline reads and writes. notion_bootstrap.py creates them from this file; notion_pull.py / notion_push.py then use the ids it records in notion_config.json. Column NAMES are load-bearing — both skills and rank.py refer to them by name, so renaming one here means renaming it in the skills too. Adding a column is safe; the scripts ignore what they don't know about.",
+  "_comment": "The one table the pipeline reads and writes. notion_bootstrap.py creates them from this file; notion_pull.py / notion_push.py then use the ids it records in notion_config.json. Column NAMES are load-bearing — both skills and rank.py refer to them by name, so renaming one here means renaming it in the skills too. Adding a column is safe; the scripts ignore what they don't know about.",
 
   "tracker": {
     "label": "Application Tracker (postings)",
@@ -15,34 +15,12 @@
       "Cycle":                {"type": "select", "options": ["Summer", "Off Cycle"]},
       "Min Degree":           {"type": "select", "options": ["BSc", "Masters", "PhD", "Not stated"]},
       "Requires":             {"type": "multi_select", "options": ["CV", "Cover letter", "Written answers", "Online test", "Video"]},
-      "Source":               {"type": "multi_select", "options": ["Notion watch", "Company board", "Manual", "Trackr", "Jorb AI", "LinkedIn"]},
+      "Source":               {"type": "multi_select", "options": ["Manual", "Trackr", "Jorb AI", "LinkedIn"]},
       "Opened":               {"type": "date"},
       "Closes":               {"type": "date"},
       "First Seen":           {"type": "date"},
       "Date Applied":         {"type": "date"},
-      "Next Action Deadline": {"type": "date"},
-      "Target Company":       {"type": "relation", "to": "targets", "synced_name": "Applications"}
-    }
-  },
-
-  "targets": {
-    "label": "Target Companies (watch list)",
-    "description": "One row per company worth checking every run. A row here is a company signal, never a role list — /jobscan expands each one to leaf-level roles at source.",
-    "title_property": "Company",
-    "properties": {
-      "Company":      {"type": "title"},
-      "Watch Status": {"type": "select", "options": ["Active", "Paused", "Landed"]},
-      "Priority":     {"type": "select", "options": ["S", "A", "B", "C"]},
-      "Sector":       {"type": "rich_text"},
-      "Geography":    {"type": "multi_select", "options": ["London", "Singapore", "Europe", "Hong Kong", "China", "US", "Remote"]},
-      "ATS":          {"type": "select", "options": ["Greenhouse", "Lever", "Workday", "Ashby", "SmartRecruiters", "Workable", "Eightfold", "Custom", "Unresolved"]},
-      "Board URL":    {"type": "url"},
-      "Board Token":  {"type": "rich_text"},
-      "Last Checked": {"type": "date"},
-      "Expected Open":{"type": "rich_text"},
-      "Channel":      {"type": "rich_text"},
-      "Contacts":     {"type": "rich_text"},
-      "Angle / Notes":{"type": "rich_text"}
+      "Next Action Deadline": {"type": "date"}
     }
   }
 }

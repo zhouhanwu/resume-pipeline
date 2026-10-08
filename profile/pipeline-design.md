@@ -147,9 +147,9 @@ slips through review goes out in your name, in a voice that isn't yours.
 
 ## Known risks
 
-- **Source coverage is only as good as the watch list.** The watch list is the
-  spine of discovery and it is yours to maintain. A company that isn't on it and
-  isn't on an aggregator simply never appears.
+- **Source coverage is only as good as the URLs you give it.** `sources.urls` in
+  `config.json` is the whole of discovery. A role that isn't reachable from one
+  of those pages simply never appears.
 - **Judgement inputs are soft.** `fit` and `p_admission` are supplied per posting
   by a model. They are recorded in the run archive so a later run can be audited
   against an earlier one, but `p_admission` in particular should never be

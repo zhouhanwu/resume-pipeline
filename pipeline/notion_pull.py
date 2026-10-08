@@ -3,12 +3,10 @@
 Pull whole Notion tables to disk. Prints counts, never rows.
 
     python3 pipeline/notion_pull.py --out-dir /tmp/scratch
-    python3 pipeline/notion_pull.py --out-dir /tmp/scratch --table tracker
     python3 pipeline/notion_pull.py --out-dir /tmp/scratch --queue
 
-Writes tracker.json and targets.json in the flat shape rank.py's
-canonical_key() and both skills already expect, so they are drop-in
-replacements for the MCP view reads.
+Writes tracker.json in the flat shape rank.py's canonical_key() and both
+skills already expect, so it is a drop-in replacement for the MCP view read.
 
 --queue additionally prints the `To apply` / `Ready to submit` standing queue,
 which is what resume-build §0 and jobscan §9 need, without either skill having
@@ -87,7 +85,6 @@ def print_stale(rows, today):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", required=True)
-    ap.add_argument("--table", choices=["tracker", "targets", "both"], default="both")
     ap.add_argument("--queue", action="store_true",
                     help="also print the To apply / Ready to submit queue")
     ap.add_argument("--stale", metavar="YYYY-MM-DD",
@@ -98,20 +95,16 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
     cfg = N.config()
 
-    want = ["tracker", "targets"] if args.table == "both" else [args.table]
-    pulled = {}
-    for name in want:
-        try:
-            pulled[name] = pull(name, cfg[name], args.out_dir, args.verbose)
-        except Exception as e:
-            print("BLOCKED pulling %s: %s" % (name, e), file=sys.stderr)
-            return 1
+    try:
+        rows = pull("tracker", cfg["tracker"], args.out_dir, args.verbose)
+    except Exception as e:
+        print("BLOCKED pulling tracker: %s" % e, file=sys.stderr)
+        return 1
 
-    if "tracker" in pulled:
-        if args.queue:
-            print_queue(pulled["tracker"])
-        if args.stale:
-            print_stale(pulled["tracker"], args.stale)
+    if args.queue:
+        print_queue(rows)
+    if args.stale:
+        print_stale(rows, args.stale)
     return 0
 
 

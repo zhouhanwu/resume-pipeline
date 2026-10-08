@@ -1,6 +1,6 @@
 ---
 name: jobscan
-description: Run the job-application discovery pipeline — sweep the configured sources and the Notion watch list, expand each company's board to leaf-level roles, rank them, write new ones to Notion as Discovered, and report a digest. Discovery only; it never builds a résumé or touches an application form. Use when the user says "run jobscan", "scan for jobs", "check for new postings", or triggers a scheduled run.
+description: Run the job-application discovery pipeline — sweep the URLs the user has listed in config.json, expand each posting to leaf-level roles, rank them, write new ones to Notion as Discovered, and report a digest. Discovery only; it never builds a résumé or touches an application form. Use when the user says "run jobscan", "scan for jobs", "check for new postings", or triggers a scheduled run.
 ---
 
 # jobscan — the discovery run
@@ -16,6 +16,13 @@ especially R1 (enumerate, don't sample), R2 (the application form is part of the
 JD), R5 (a failed extraction is a blocker, not a finding) and R7 (rank, never
 filter).
 
+**The only data sources are the URLs in `config.json` → `sources.urls`** — listing
+pages the user chose, such as a saved Trackr or Jorb AI search. Nothing else
+feeds discovery: not the Notion tracker (it is the dedupe ledger and the output,
+never a source of postings), not a company list, not anything you remember about
+who is hiring. A role that is not reachable from one of those URLs does not
+exist for this run.
+
 Anything browser-driven needs Chrome running, logged in, and the extension
 granted access to the site. If a source is unreachable, **say so and raise** —
 never report "no new postings" when the real answer is "I couldn't look."
@@ -28,30 +35,27 @@ never report "no new postings" when the real answer is "I couldn't look."
 python3 -c "import json;c=json.load(open('config.json'));print(json.dumps(c['sources'],indent=1));print('lookback default 7')"
 ```
 
-`config.json`'s `sources` block decides what this run sweeps. The Notion watch
-list is the spine and is always on. The aggregator sources ship **disabled** —
-they are UK-internship-specific and login-gated, so they are only useful to a
-user who has said they use them.
+`sources.urls` is the whole list of what this run sweeps: `{"name", "url"}`
+pairs. `name` is what goes in the `Source` column.
 
-**If every aggregator is off, that is a normal configuration, not a degraded
-one.** Say in the digest that discovery was watch-list-only, so the user knows
-coverage equals their own target list and can extend it.
+**If `urls` is empty, stop.** Say "no source URLs configured — add one to
+`config.json` under `sources.urls`" and end the run. Do not fall back to
+searching the web or to any other list; that is the failure this skill exists
+to avoid (R5).
 
 ## 1. Load state
 
-**Pull both tables with one command. Do not read them through MCP.**
+**Pull the tracker with one command. Do not read it through MCP.**
 
 ```bash
 python3 pipeline/notion_pull.py --out-dir "$SCRATCH" --queue --stale <YYYY-MM-DD>
 ```
 
-This writes `tracker.json` and `targets.json` and prints only counts, the
-standing queue (step 9) and any closed-but-open rows (step 7). Reading the same
+This writes `tracker.json` and prints only the count, the standing queue
+(step 9) and any closed-but-open rows (step 7). Reading the same
 rows through MCP pushes every row through the conversation, which can cost a
 third of a session on a large table. Setup lives in `pipeline/NOTION-SETUP.md`.
 
-- Watch list → `targets.json` (the **Target Companies** table). Unfiltered, so
-  take every row and apply `Watch Status = Active` yourself.
 - Existing postings → `tracker.json` (the **Application Tracker** table). **This
   is the dedupe source of truth.** Pass it to `rank.py --known`. It contains
   *all* rows, not just open ones: a row at `Applied`, `Rejected` or `Abandoned`
@@ -77,7 +81,7 @@ Also on disk:
 
 ## 2. Sweep the configured discovery sources
 
-For each enabled source in `config.sources`, sweep it to exhaustion. General
+For each entry in `sources.urls`, sweep it to exhaustion. General
 rules that apply to all of them:
 
 - **Use the user's own saved filters exactly as they have them set.** Do not
@@ -105,30 +109,24 @@ Record the cycle (`Summer` / `Off Cycle`) where the source states it. It is not
 cosmetic — off-cycle roles get a mechanical uplift in `rank.py` because they draw
 far fewer applicants.
 
-`profile/research-protocol.md`'s "Established tool facts" has the per-ATS access
+`profile/research-protocol.md`'s "Established tool facts" has the per-site access
 details and the two Workday quirks that each silently truncate a sweep.
 
-## 3. Check every Active watch-list target at source
+## 3. Follow each listing to its real posting
 
-A tracker row is a company signal, never the role list. For each Active target,
-branch on `ATS`:
+A listing row is a pointer. Aggregators usually link out to the employer's own
+application page, and that is the URL that goes in `Link` — it is also the stable
+half of `canonical_key()`.
 
-- **API-backed** (Greenhouse, Lever, Workday, Ashby, SmartRecruiters, Workable,
-  Eightfold) → hit the board directly via its JSON API. Fetch large payloads
-  inside Chrome rather than with a summarising web-fetch tool, which truncates.
-- **`ATS = Custom`** → **its own category, not a flavour of `Unresolved`.** The
-  Board URL is already known; it just has no JSON API, so it needs a direct
-  Chrome visit. Check it every run, same as the API-backed ones. Some targets
-  carry a standing instruction to recheck every run — those are not optional.
-- **`ATS = Unresolved`** → resolve it per the protocol's careers-page link-scan
-  method. **Never guess tokens** — measured hit rate is about 1 in 8. Cache the
-  result back to the Target Companies row along with `Last Checked`.
+- **Known ATS (Greenhouse, Lever, Workday, Ashby, SmartRecruiters, Workable,
+  Eightfold)** → fetch the posting via its JSON API where the protocol lists one.
+  Fetch large payloads inside Chrome rather than with a summarising web-fetch
+  tool, which truncates.
+- **Anything else** → a direct Chrome visit.
+- **Never guess a board token** or go looking for other roles at the same
+  company. Only postings that appeared on a configured URL are in scope.
 
-**Every category except `Unresolved` gets checked every run, no exceptions.**
-API-backed and Custom targets are cheap — a known URL and one fetch — so there
-is no time-budget excuse for skipping them. `Unresolved` is the only tier that
-can legitimately be deferred under time pressure, and deferring it must be named
-explicitly in the digest, never silently absorbed into another bucket.
+A link that will not open is a failed extraction (R5): name it in the digest.
 
 ## 4. Expand to leaves
 
@@ -230,10 +228,10 @@ For every `is_new: true` leaf, create a row with:
 
 - `Status = Discovered` — **always.** Selection is opt-in; the user promotes to
   `To apply`. **Never write `To apply` yourself.**
-- `Source` — which sources surfaced it. Never leave empty; empty means the user
+- `Source` — the `name` of each `sources.urls` entry that surfaced it. Never leave empty; empty means the user
   created the row by hand.
 - `Score`, `Opened`, `Closes`, `First Seen`, `Location`, `Role`, `Link`,
-  `Requires`, `Cycle`, and the `Target Company` relation.
+  `Requires` and `Cycle`.
 - `Min Degree` — **on every row.** If you genuinely could not read the JD,
   `Not stated` is the honest value; an empty cell means nobody looked.
 
@@ -264,8 +262,7 @@ passed, flag for archiving. **Never touch anything at `Applied` or beyond** —
 those are permanent history.
 
 If a row the user had prioritised closes unapplied, **surface it as a missed
-opening.** That is the failure this system exists to prevent, and each one should
-sharpen the `Expected Open` estimate on the Target Companies row.
+opening.** That is the failure this system exists to prevent.
 
 ## 8. Digest
 
@@ -277,8 +274,7 @@ Five-minute budget. Report:
   filled from `profile/application-facts.md`) versus **Category B**
   (why-this-firm, describe-a-time, referees, anything not pre-declared — the
   user writes these).
-- **Sources that failed**, named explicitly. And if discovery was
-  watch-list-only, say so.
+- **Sources that failed**, named explicitly, and per-source row counts.
 - Missed openings from step 7.
 - **The standing queue** — see step 9.
 

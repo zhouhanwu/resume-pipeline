@@ -15,10 +15,9 @@ exists because the MCP tool's *SQL mode* returned stale rows against a
 and the MCP view mode both read from, paginated to exhaustion, so it sees the
 same rows a view sees. Two things preserve the rule's intent:
 
-  1. Both views this pipeline reads are UNFILTERED (tracker `All`, Target
-     Companies `Default view`), so querying the data source directly returns the
-     same set. If either view ever gains a filter, this equivalence breaks and
-     the scripts must be revisited.
+  1. The view this pipeline reads is UNFILTERED (tracker `All`), so querying
+     the data source directly returns the same set. If that view ever gains a
+     filter, this equivalence breaks and the scripts must be revisited.
   2. Pagination is not optional here and not left to a caller — query_all()
      loops the cursor to exhaustion internally and cannot return a partial page.
 
@@ -238,15 +237,14 @@ def _plain(rich):
 def flatten(page):
     """REST page object -> flat dict.
 
-    Deliberately reproduces the MCP tools' shape so tracker.json and
-    targets.json stay drop-in for rank.py, canonical_key() and both skills:
+    Deliberately reproduces the MCP tools' shape so tracker.json stays drop-in for rank.py, canonical_key() and both skills:
     multi_select and relation come back as JSON *strings*, dates explode into
     `date:NAME:start` / `:end` / `:is_datetime`, and `url` is the page URL.
 
     Empty values follow the MCP tools' own convention exactly, because callers
     rely on it: an empty select / multi-select / relation / number is an ABSENT
     key, not an empty one. Emitting `"[]"` for an empty relation would be
-    truthy and would silently flip any `if row.get("Target Company"):` test.
+    truthy and would silently flip any `if row.get(<relation>):` test.
     Title, rich_text and url always appear, empty string included.
     """
     flat = {"url": page_url(page.get("id"))}

@@ -10,9 +10,6 @@ Write Notion rows from a file on disk. Prints a reconcile line, never payloads.
     python3 pipeline/notion_push.py --table tracker --update \
         '{"page":"https://app.notion.com/p/<id>","properties":{"Status":"Ready to submit"}}'
 
-    # cache an ATS resolution back onto a watch-list row (jobscan step 3)
-    python3 pipeline/notion_push.py --table targets --update-file updates.json
-
 INPUT for --create: a JSON array of
     {"properties": {<flat dict, same shape jobscan already builds>},
      "content":    "optional page body text"}
@@ -121,7 +118,7 @@ def do_update(source, schema, updates):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--table", choices=["tracker", "targets"], required=True)
+    ap.add_argument("--table", choices=["tracker"], required=True)
     ap.add_argument("--create", metavar="FILE", help="JSON array of rows to create")
     ap.add_argument("--receipts", metavar="FILE",
                     help="resume/idempotency ledger; strongly recommended with --create")

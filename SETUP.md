@@ -168,9 +168,9 @@ python3 pipeline/notion_pull.py --out-dir /tmp/check --queue
 > works when you type commands yourself and is invisible to every script Claude
 > runs. This costs people an hour; don't let it cost you one.
 
-Then seed the **Target Companies** table with firms you'd actually work for, at
-`Watch Status = Active`. `/jobscan`'s coverage is exactly that list plus any
-aggregators you enable in `config.json` — a company on neither never appears.
+Then add the listing pages you want scanned (a saved Trackr or Jorb AI search,
+say) to `sources.urls` in `config.json`. `/jobscan` looks at those URLs and
+nothing else.
 
 ## 7. Clean up the example
 

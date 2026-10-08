@@ -255,6 +255,13 @@ application tab, and never close one from an earlier role in the same run.
 `profile/application-facts.md` and fill from it verbatim. Never re-ask what it
 already records, never infer a value it doesn't state.
 
+**A field marked "not recorded", or absent, is asked once.** `/setup` deliberately
+skips small details (addresses, referees, GCSEs).
+When a form needs one, ask the user, fill it, and write the answer back into
+`application-facts.md` in the same step so it is never asked again. Never guess
+it, and never record anything on the never-record list (government identifiers,
+bank details, full date of birth).
+
 | Field group | Source | Trap |
 |---|---|---|
 | Name | §1 | Given-name-first on everything outgoing |

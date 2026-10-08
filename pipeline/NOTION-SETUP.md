@@ -27,14 +27,14 @@ Notion tools stay available and are still the right choice for ad-hoc questions
    It does not need user information.
 5. Copy the **Internal Integration Secret** (it starts `ntn_`).
 
-## 2. Make a page to hold the tables, and connect it
+## 2. Make a page to hold the table, and connect it
 
 Create a page in that workspace — call it **Jobs**. Then, on that page:
 
 **⋯ (top right) → Connections → Connect to → `resume-pipeline`**
 
-The two tables get created as children of this page, so connecting the parent
-covers both by inheritance.
+The table gets created as a child of this page, so connecting the parent
+covers it by inheritance.
 
 Keep the page URL. Step 4 needs it.
 
@@ -82,15 +82,14 @@ chmod 600 pipeline/.notion-token
 > compromised the day you stop trusting that sync, and rotate it from
 > notion.so/my-integrations.
 
-## 4. Create the two tables
+## 4. Create the table
 
 ```sh
 python3 pipeline/notion_bootstrap.py --parent "<your Jobs page URL>"
 ```
 
 This reads `pipeline/notion_schema.json`, creates **Application Tracker
-(postings)** and **Target Companies (watch list)** under that page, links them
-with a relation, writes `pipeline/notion_config.json`, and verifies.
+(postings)** under that page, writes `pipeline/notion_config.json`, and verifies.
 
 Useful flags:
 
@@ -115,7 +114,6 @@ Expect something like:
 
 ```
 tracker     0 rows  ->  /tmp/notion-check/tracker.json   [data_source endpoint]
-targets     0 rows  ->  /tmp/notion-check/targets.json   [data_source endpoint]
 
 standing queue
   (empty)
@@ -125,18 +123,17 @@ Zero rows is correct on a fresh setup. If you later get a row count that looks
 far too low, that's a partial read and a blocker — say so rather than working
 from it.
 
-## 6. Seed the watch list
+## 6. Add your source URLs
 
-`/jobscan`'s coverage is exactly your Target Companies list plus whatever
-aggregators you enabled in `config.json`. A company that is on neither never
-appears.
+Notion holds your tracker, not your search list. `/jobscan` looks only at the
+URLs under `sources.urls` in `config.json` — a saved Trackr or Jorb AI search,
+for instance:
 
-Add a row per company you'd actually work for, with:
+```json
+"urls": [{"name": "Trackr", "url": "https://app.the-trackr.com/uk-tech/summer-internships"}]
+```
 
-- `Watch Status = Active`
-- `ATS` — leave `Unresolved` and the first run will resolve and cache it
-- `Board URL` if you already know it
-- `Geography`, `Priority`, and any notes
+A role that is not reachable from one of those pages never appears.
 
 ---
 
@@ -145,7 +142,7 @@ Add a row per company you'd actually work for, with:
 ### Read
 
 ```sh
-# both tables, plus the standing queue and any closed-but-open rows
+# the tracker, plus the standing queue and any closed-but-open rows
 python3 pipeline/notion_pull.py --out-dir "$SCRATCH" --queue --stale 2026-09-24
 
 # just the tracker
@@ -176,9 +173,8 @@ python3 pipeline/notion_push.py --table tracker --update \
 [{"properties": {"Company": "...", "Role": "...", "Status": "Discovered",
                  "Score": 65.2, "Location": "London", "Cycle": "Summer",
                  "Min Degree": "BSc", "Requires": "[\"CV\"]",
-                 "Source": "[\"Notion watch\"]", "Link": "https://...",
-                 "date:Opened:start": "2026-09-14", "date:Opened:is_datetime": 0,
-                 "Target Company": "[\"https://www.notion.so/<id>\"]"},
+                 "Source": "[\"Trackr\"]", "Link": "https://...",
+                 "date:Opened:start": "2026-09-14", "date:Opened:is_datetime": 0},
   "content": "optional page body — eligibility notes, JD caveats"}]
 ```
 
@@ -207,7 +203,7 @@ whole failure the queue is meant to prevent.
 These scripts call the same public REST API that the Notion UI and the MCP *view*
 mode both read from, so they see what a view sees. Two things keep that intact:
 
-1. **Both tables this pipeline reads are queried unfiltered**, so a direct
+1. **The tracker this pipeline reads is queried unfiltered**, so a direct
    data-source query returns the same set a default view shows. **If you add a
    filter to a view and start relying on it, that equivalence breaks** — the
    scripts still read everything, which for dedupe is what you want.

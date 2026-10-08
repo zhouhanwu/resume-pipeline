@@ -104,7 +104,7 @@ fails to parse is a flag, not a null.
 
 Recorded so the exploration doesn't have to repeat.
 
-### Resolving a company to its ATS — never guess the token
+### Resolving a posting's ATS — never guess the token
 
 Guessing Greenhouse/Lever tokens from a company name has a measured hit rate of
 roughly **1 in 8**. Don't do it.
@@ -124,9 +124,9 @@ The failure this prevents: a company whose name resolves to nothing on Greenhous
 or Lever may simply be on a less common ATS, and no amount of token-guessing will
 find it. One link-scan will.
 
-**This is a pipeline function, not a manual one.** Resolve on first encounter,
-cache the result in the Target Companies row's `ATS` and `Board Token` columns,
-and only re-resolve when a board 404s.
+**Scope:** use this only to follow a posting that appeared on a configured
+`sources.urls` page to its employer's application system. It is not a way to
+discover other roles at that company.
 
 ### Reaching job boards
 

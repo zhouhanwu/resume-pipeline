@@ -25,9 +25,8 @@ claude                    # then, in Claude Code:
 ```
 
 **`/setup` is the front door and it does the work.** It checks your toolchain,
-reads your existing CV, interviews you for about 40 minutes about what you've
-actually done, and writes every file this system needs — your knowledge base,
-your form answers, your honesty rules, your résumé content, your Notion tables.
+reads your existing CV, asks you a handful of questions, and writes every file this system needs — your knowledge base,
+your form answers, your honesty rules, your résumé content, your Notion tracker.
 You never edit JSON and you never read the codebase.
 
 You can stop and resume; it tracks which phases are done.

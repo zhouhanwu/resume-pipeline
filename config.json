@@ -49,11 +49,8 @@
   },
 
   "sources": {
-    "_comment": "Which discovery sources /jobscan sweeps. The Notion watch list is the spine and cannot be turned off. The other two are UK-internship-specific and login-gated — leave them false unless they cover your market.",
-    "notion_watchlist": true,
-    "trackr": {"enabled": false, "url": "https://app.the-trackr.com/uk-tech/summer-internships"},
-    "jorb": {"enabled": false, "url": "https://jorb.ai/search-jobs"},
-    "custom": []
+    "_comment": "The ONLY places /jobscan looks: URLs you add here, nothing else. Each entry is {\"name\": \"Trackr\", \"url\": \"https://...\"} where name is what lands in the Source column and url is a listing page with your own filters already saved (e.g. a Trackr or Jorb AI search). Add a URL to scan it, delete it to stop. Empty means /jobscan has nothing to sweep and will say so. Login-gated pages need Chrome signed in.",
+    "urls": []
   },
 
   "queue": {

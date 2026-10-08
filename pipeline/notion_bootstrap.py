@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-notion_bootstrap.py — create the two tables the pipeline needs, once.
+notion_bootstrap.py — create the table the pipeline needs, once.
 
     python3 pipeline/notion_bootstrap.py --parent <notion page url or id>
     python3 pipeline/notion_bootstrap.py --verify        # check an existing setup
     python3 pipeline/notion_bootstrap.py --parent <url> --dry-run
 
 Reads pipeline/notion_schema.json, creates "Application Tracker (postings)"
-and "Target Companies (watch list)" as child databases of the page you name,
-links them with a two-way relation, and writes pipeline/notion_config.json
-with the ids every other script reads.
+as a child database of the page you name, and writes pipeline/notion_config.json
+with the id every other script reads.
 
 Before running it you need, once:
 
@@ -17,7 +16,7 @@ Before running it you need, once:
      content capabilities. Copy its Internal Integration Secret (starts `ntn_`).
   2. That secret in $NOTION_TOKEN — see pipeline/NOTION-SETUP.md, and note the
      .zshenv-not-.zshrc trap, which is the one that actually catches people.
-  3. A page in your workspace to hold the two tables (call it "Jobs"), shared
+  3. A page in your workspace to hold the table (call it "Jobs"), shared
      with the integration via ... -> Connections -> Connect to -> <your
      integration>. Its URL is what --parent takes.
 
@@ -39,6 +38,8 @@ import notion_io as n  # noqa: E402
 
 SCHEMA_FILE = os.path.join(HERE, "notion_schema.json")
 CONFIG_FILE = os.path.join(HERE, "notion_config.json")
+
+TABLES = ("tracker",)
 
 ID_RE = re.compile(r"([0-9a-fA-F]{32})")
 
@@ -98,8 +99,6 @@ def create_table(parent_id, table, dry_run=False):
     """Create one database. Returns {'database_id':..., 'data_source_id':...}."""
     props = {}
     for name, spec in table["properties"].items():
-        if spec["type"] == "relation":
-            continue                      # second pass, once both tables exist
         props[name] = prop_payload(spec)
 
     body_new = {
@@ -129,53 +128,13 @@ def create_table(parent_id, table, dry_run=False):
         return {"database_id": out["id"], "data_source_id": out["id"]}
 
 
-def add_relation(source, target, prop_name, synced_name, dry_run=False):
-    """Add one relation column, dual if the workspace allows it."""
-    if dry_run:
-        print("  would link %s -> %s" % (prop_name, target["label"]))
-        return
-
-    def patch(version, path, ref_key, ref_id, dual):
-        rel = {"type": "dual_property",
-               "dual_property": {}} if dual else {"type": "single_property",
-                                                  "single_property": {}}
-        rel[ref_key] = ref_id
-        return n.request("PATCH", path, {"properties": {prop_name: {"relation": rel}}},
-                         version)
-
-    ds = source.get("data_source_id")
-    attempts = []
-    if ds:
-        attempts.append((n.API_VERSION, "/data_sources/%s" % ds,
-                         "data_source_id", target["data_source_id"]))
-    attempts.append((n.FALLBACK_API_VERSION, "/databases/%s" % source["database_id"],
-                     "database_id", target["database_id"]))
-
-    last = None
-    for version, path, ref_key, ref_id in attempts:
-        for dual in (True, False):
-            try:
-                patch(version, path, ref_key, ref_id, dual)
-                kind = "two-way" if dual else "one-way"
-                print("  linked %-16s -> %-34s (%s)"
-                      % (prop_name, target["label"], kind))
-                return
-            except n.NotionError as e:
-                last = e
-                if e.code not in (400, 404):
-                    raise
-    print("  ! could not add the %s relation: %s" % (prop_name, last))
-    print("    Add it by hand in Notion (a Relation column pointing at %s)."
-          % target["label"])
-
-
 # ------------------------------------------------------------------ verify --
 
 def verify(cfg):
-    """Prove both tables resolve and every schema column is present."""
+    """Prove the table resolves and every schema column is present."""
     schema = load_schema()
     ok = True
-    for key in ("tracker", "targets"):
+    for key in TABLES:
         if key not in cfg:
             print("  %-8s MISSING from notion_config.json" % key)
             ok = False
@@ -201,7 +160,7 @@ def verify(cfg):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--parent", help="Notion page URL or id to create the tables under")
+    ap.add_argument("--parent", help="Notion page URL or id to create the table under")
     ap.add_argument("--verify", action="store_true", help="check an existing setup and exit")
     ap.add_argument("--dry-run", action="store_true", help="say what would happen, write nothing")
     args = ap.parse_args()
@@ -214,7 +173,7 @@ def main():
         print("verifying %s" % os.path.relpath(CONFIG_FILE, os.path.dirname(HERE)))
         ok = verify(cfg)
         if ok:
-            print("\nBoth tables resolve. Next: python3 pipeline/notion_pull.py "
+            print("\nTable resolves. Next: python3 pipeline/notion_pull.py "
                   '--out-dir /tmp/notion-check --queue')
         raise SystemExit(0 if ok else 1)
 
@@ -225,9 +184,9 @@ def main():
     parent_id = parse_page_id(args.parent)
     schema = load_schema()
 
-    print("creating tables under page %s" % parent_id)
+    print("creating table under page %s" % parent_id)
     made = {}
-    for key in ("tracker", "targets"):
+    for key in TABLES:
         if key in cfg:
             try:
                 n.get_schema(cfg[key])
@@ -246,15 +205,6 @@ def main():
     if args.dry_run:
         print("\ndry run — nothing was written.")
         return
-
-    for key in ("tracker", "targets"):
-        for name, spec in schema[key]["properties"].items():
-            if spec["type"] != "relation":
-                continue
-            other = spec["to"]
-            if key in made and other in made:
-                add_relation(made[key], made[other], name,
-                             spec.get("synced_name", ""))
 
     out = {"_comment": "Written by notion_bootstrap.py. Table ids only — no "
                        "secrets. The token lives in $NOTION_TOKEN or "
